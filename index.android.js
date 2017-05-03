@@ -1,24 +1,78 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- * @flow
- */
-
 import React, { Component } from 'react';
-import { AppRegistry, StyleSheet, Text, View, StatusBar, Button } from 'react-native';
+import {
+  AppRegistry,
+  StyleSheet,
+  Text,
+  View,
+  StatusBar,
+  Button,
+  TouchableOpacity
+} from 'react-native';
 var Dimensions = require('Dimensions');
 var { width: deviceWidth, height: deviceHeight } = Dimensions.get('window');
 
-const CoachMark = ({ x, y, width, height }) => {
-  const backgroundColor = 'black';
-  const opacity = 0.8;
-  const padding = 10;
-  const widgetToTextGap = 100;
-  const textColor = 'white';
-  const fontSize = 20;
-  const textPadding = 40;
-  const borderColor = 'green';
+const green = '#3dc057';
+const backgroundColor = '#000000';
+const opacity = 0.9;
+const padding = 10;
+const widgetToTextGap = 80;
+const textColor = 'white';
+const fontSize = 18;
+const textPadding = 60;
+const borderColor = green;
+const linePadding = 0;
+const lineWidth = 3;
+const circleSize = 15;
 
+const Line = ({ left, top, width, height }) => (
+  <View
+    style={{
+      backgroundColor: green,
+      position: 'absolute',
+      height,
+      width,
+      left,
+      top
+    }}
+  />
+);
+
+const Circle = ({ left, top }) => (
+  <View
+    style={{
+      position: 'absolute',
+      left,
+      top,
+      width: circleSize,
+      height: circleSize,
+      borderRadius: circleSize / 2,
+      backgroundColor: green
+    }}
+  />
+);
+
+const OkButton = ({ onPress }) => (
+  <TouchableOpacity onPress={onPress} style={{}}>
+    <Text
+      style={{
+        marginTop: 20,
+        paddingTop: 6,
+        backgroundColor: green,
+        alignSelf: 'flex-start',
+        textAlign: 'center',
+        height: 40,
+        width: 100,
+        fontSize,
+        color: 'white',
+        fontWeight: 'bold',
+        borderRadius: 4
+      }}>
+      OK
+    </Text>
+  </TouchableOpacity>
+);
+
+const CoachMark = ({ x, y, width, height }) => {
   console.log(' abcd deviceWidth: ', deviceWidth, ' deviceHeight: ', deviceHeight);
   console.log(' abcd coachmarks render : ', x, y, width, height);
   return (
@@ -100,13 +154,25 @@ const CoachMark = ({ x, y, width, height }) => {
         }}
       />
 
+      <Line
+        left={x}
+        top={y + height + padding + linePadding}
+        width={lineWidth}
+        height={widgetToTextGap - circleSize}
+      />
+
+      <Circle
+        left={x - circleSize / 2 + 2}
+        top={y + height + padding + linePadding + widgetToTextGap - circleSize}
+      />
+
       <View
         testID="textLayout"
         style={{
           flexDirection: 'column',
           position: 'absolute',
           left: textPadding,
-          top: y + widgetToTextGap,
+          top: y + height + padding + widgetToTextGap,
           width: deviceWidth - (textPadding + textPadding),
           height: height - (y - widgetToTextGap),
           paddingBottom: 40
@@ -115,12 +181,13 @@ const CoachMark = ({ x, y, width, height }) => {
           testID="coachText"
           style={{
             color: textColor,
-            fontSize
+            fontSize,
+            fontFamily: 'Roboto-Medium'
           }}>
-          This is this coach mark help text that needs to be displayed and it can be very long and has multiple lines
+          This is this coach mark help text that needs to be displayed and it can be very long and has multiple lines.
         </Text>
 
-        <Button testID="coachButton" title="OK" onPress={() => true} />
+        <OkButton />
       </View>
     </View>
   );
