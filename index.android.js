@@ -72,7 +72,7 @@ const OkButton = ({ onPress }) => (
   </TouchableOpacity>
 );
 
-const CoachMark = ({ x, y, width, height }) => {
+const CoachMark = ({ x, y, width, height, onPress }) => {
   console.log(' abcd deviceWidth: ', deviceWidth, ' deviceHeight: ', deviceHeight);
   console.log(' abcd coachmarks render : ', x, y, width, height);
   return (
@@ -187,7 +187,7 @@ const CoachMark = ({ x, y, width, height }) => {
           This is this coach mark help text that needs to be displayed and it can be very long and has multiple lines.
         </Text>
 
-        <OkButton />
+        <OkButton onPress={onPress} />
       </View>
     </View>
   );
@@ -198,7 +198,8 @@ export default class coachMarks extends Component {
     x: 0,
     y: 0,
     width: 0,
-    height: 0
+    height: 0,
+    coachMarksVisibility: true
   };
 
   getString() {
@@ -227,7 +228,16 @@ export default class coachMarks extends Component {
           Press Cmd+R to reload,{'\n'}
         </Text>
 
-        <CoachMark x={x} y={y} width={width} height={height} />
+        {this.state.coachMarksVisibility &&
+          <CoachMark
+            x={x}
+            y={y}
+            width={width}
+            height={height}
+            onPress={() => {
+              this.setState({ coachMarksVisibility: false });
+            }}
+          />}
       </View>
     );
   }
