@@ -1,4 +1,5 @@
-import React, { Component } from 'react';
+/* eslint-disable */
+import React, { Component, PropTypes as T } from 'react';
 import {
   AppRegistry,
   StyleSheet,
@@ -14,15 +15,15 @@ var { width: deviceWidth, height: deviceHeight } = Dimensions.get('window');
 const green = '#3dc057';
 const backgroundColor = '#000000';
 const opacity = 0.9;
-const padding = 10;
+const padding = 8;
 const widgetToTextGap = 80;
 const textColor = 'white';
 const fontSize = 18;
-const textPadding = 60;
+const textPadding = 50;
 const borderColor = green;
 const linePadding = 0;
 const lineWidth = 3;
-const circleSize = 15;
+const circleSize = 12;
 
 const Line = ({ left, top, width, height }) => (
   <View
@@ -51,8 +52,8 @@ const Circle = ({ left, top }) => (
   />
 );
 
-const OkButton = ({ onPress }) => (
-  <TouchableOpacity onPress={onPress} style={{}}>
+const OkButton = ({ onPress, title }) => (
+  <TouchableOpacity onPress={onPress}>
     <Text
       style={{
         marginTop: 20,
@@ -67,14 +68,21 @@ const OkButton = ({ onPress }) => (
         fontWeight: 'bold',
         borderRadius: 4
       }}>
-      OK
+      {title}
     </Text>
   </TouchableOpacity>
 );
 
-const CoachMark = ({ x, y, width, height, onPress, text }) => {
-  console.log(' abcd deviceWidth: ', deviceWidth, ' deviceHeight: ', deviceHeight);
-  console.log(' abcd coachmarks render : ', x, y, width, height);
+const CoachMarkView = ({
+  left,
+  top,
+  width,
+  height,
+  onPress,
+  text,
+  buttonText = 'OK',
+  hideStatusBar = true
+}) => {
   return (
     <View
       testID="container"
@@ -87,7 +95,8 @@ const CoachMark = ({ x, y, width, height, onPress, text }) => {
         width: deviceWidth,
         height: deviceHeight
       }}>
-      <StatusBar hidden />
+
+      <StatusBar hidden={hideStatusBar} />
 
       <View
         testID="topRectangle"
@@ -98,7 +107,7 @@ const CoachMark = ({ x, y, width, height, onPress, text }) => {
           left: 0,
           top: 0,
           width: deviceWidth,
-          height: y - padding
+          height: top - padding
         }}
       />
 
@@ -109,8 +118,8 @@ const CoachMark = ({ x, y, width, height, onPress, text }) => {
           opacity,
           position: 'absolute',
           left: 0,
-          top: y - padding,
-          width: x - padding,
+          top: top - padding,
+          width: left - padding,
           height: height + padding + padding
         }}
       />
@@ -118,11 +127,11 @@ const CoachMark = ({ x, y, width, height, onPress, text }) => {
       <View
         testID="content"
         style={{
-          borderWidth: 2,
+          borderWidth: lineWidth,
           borderColor,
           position: 'absolute',
-          left: x - padding,
-          top: y - padding,
+          left: left - padding,
+          top: top - padding,
           width: width + padding + padding,
           height: height + padding + padding
         }}
@@ -134,8 +143,8 @@ const CoachMark = ({ x, y, width, height, onPress, text }) => {
           backgroundColor,
           opacity,
           position: 'absolute',
-          left: x + width + padding,
-          top: y - padding,
+          left: left + width + padding,
+          top: top - padding,
           width: deviceWidth,
           height: height + padding + padding
         }}
@@ -148,22 +157,22 @@ const CoachMark = ({ x, y, width, height, onPress, text }) => {
           opacity,
           position: 'absolute',
           left: 0,
-          top: y + height + padding,
+          top: top + height + padding,
           width: deviceWidth,
           height: deviceHeight
         }}
       />
 
       <Line
-        left={x}
-        top={y + height + padding + linePadding}
+        left={left}
+        top={top + height + padding + linePadding}
         width={lineWidth}
         height={widgetToTextGap - circleSize}
       />
 
       <Circle
-        left={x - circleSize / 2 + 2}
-        top={y + height + padding + linePadding + widgetToTextGap - circleSize}
+        left={left - circleSize / 2 + 2}
+        top={top + height + padding + linePadding + widgetToTextGap - circleSize}
       />
 
       <View
@@ -172,10 +181,10 @@ const CoachMark = ({ x, y, width, height, onPress, text }) => {
           flexDirection: 'column',
           position: 'absolute',
           left: textPadding,
-          top: y + height + padding + widgetToTextGap,
+          top: top + height + padding + widgetToTextGap,
           width: deviceWidth - (textPadding + textPadding),
-          height: height - (y - widgetToTextGap),
-          paddingBottom: 40
+          paddingBottom: 40,
+          backgroundColor: 'transparent'
         }}>
         <Text
           testID="coachText"
@@ -186,10 +195,75 @@ const CoachMark = ({ x, y, width, height, onPress, text }) => {
           {text}
         </Text>
 
-        <OkButton onPress={onPress} />
+        <OkButton title={buttonText} onPress={onPress} />
       </View>
     </View>
   );
 };
 
-export default CoachMark;
+class CoachMarks extends React.Component {
+  static propTypes = {
+    initialIndex: T.number,
+    viewPositions: T.arrayOf(
+      T.shape({
+        x: T.number,
+        y: T.number,
+        width: T.number,
+        height: T.number
+      })
+    ).isRequired,
+    coachTexts: T.arrayOf(T.string).isRequired,
+    onFinish: T.func.isRequired
+  };
+
+  static defaultProps = {
+    initialIndex: 0
+  };
+
+  state = {
+    currentIndex: 0
+  };
+
+  componentWillMount() {
+    this.setState({ currentIndex: this.props.initialIndex });
+  }
+
+  getButtonText = () =>
+    this.state.currentIndex !== this.props.viewPositions.length - 1 ? 'Next' : 'OK';
+
+  navigateToNextScreen = () => {
+    if (this.state.currentIndex < this.props.viewPositions.length - 1) {
+      this.setState({ currentIndex: this.state.currentIndex + 1 });
+    } else {
+      this.setState({ currentIndex: -1 });
+      this.props.onFinish();
+    }
+  };
+
+  getViewPositions = () =>
+    this.state.currentIndex >= 0
+      ? this.props.viewPositions[this.state.currentIndex]
+      : { x: 0, y: 0, width: 0, height: 0 };
+
+  render() {
+    const { x, y, width, height } = this.getViewPositions();
+    const shouldShow = this.state.currentIndex >= 0 && !(width === 0 && height === 0);
+    return (
+      <View style={this.props.style}>
+        {this.props.children}
+        {shouldShow &&
+          <CoachMarkView
+            left={x}
+            top={y}
+            width={width}
+            height={height}
+            text={this.props.coachTexts[this.state.currentIndex]}
+            buttonText={this.getButtonText()}
+            onPress={this.navigateToNextScreen}
+          />}
+      </View>
+    );
+  }
+}
+
+export default CoachMarks;
